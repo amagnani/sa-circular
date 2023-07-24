@@ -295,36 +295,7 @@
                     "args": [
                         "-c",
                         "true && export PYTHONUNBUFFERED=x MF_PATHSPEC=ObjectDetectionTrain/{{workflow.name}}/end/{{pod.name}} MF_DATASTORE=s3 MF_ATTEMPT=0 MFLOG_STDOUT=/tmp/mflog_stdout MFLOG_STDERR=/tmp/mflog_stderr && mflog(){ T=$(date -u -Ins|tr , .); echo \"[MFLOG|0|${T:0:26}Z|task|$T]$1\" >> $MFLOG_STDOUT; echo $1;  } && mflog 'Setting up task environment.' && python -m pip install requests -qqq && python -m pip install awscli boto3 -qqq && mkdir metaflow && cd metaflow && mkdir .metaflow && i=0; while [ $i -le 5 ]; do mflog 'Downloading code package...'; python -m awscli ${METAFLOW_S3_ENDPOINT_URL:+--endpoint-url=\"${METAFLOW_S3_ENDPOINT_URL}\"} s3 cp s3://sa-circular/data/ObjectDetectionTrain/data/22/22abbcab7ec0e096339bb7955cfcebfff27ca783 job.tar >/dev/null && mflog 'Code package downloaded.' && break; sleep 10; i=$((i+1)); done && if [ $i -gt 5 ]; then mflog 'Failed to download code package from s3://sa-circular/data/ObjectDetectionTrain/data/22/22abbcab7ec0e096339bb7955cfcebfff27ca783 after 6 tries. Exiting...' && exit 1; fi && TAR_OPTIONS='--warning=no-timestamp' tar xf job.tar && mflog 'Task is starting.' && (python object_detection_train.py --quiet --metadata=local --environment=local --datastore=s3 --datastore-root=s3://sa-circular/data --event-logger=nullSidecarLogger --monitor=nullSidecarMonitor --no-pylint --with=argo_internal step end --run-id {{workflow.name}} --task-id {{pod.name}} --retry-count 0 --max-user-code-retries 0 --input-paths {{inputs.parameters.input-paths}}) 1>> >(python -m metaflow.mflog.tee task $MFLOG_STDOUT) 2>> >(python -m metaflow.mflog.tee task $MFLOG_STDERR >&2); c=$?; python -m metaflow.mflog.save_logs; exit $c"
-                    ],
-                    "env": [
-                        {
-                            "name": "METAFLOW_USER",
-                            "value": "I550349"
-                        },
-                        {
-                            "name": "METAFLOW_DATASTORE_SYSROOT_S3",
-                            "value": "s3://sa-circular/data"
-                        },
-                        {
-                            "name": "METAFLOW_DEFAULT_METADATA",
-                            "value": "local"
-                        }
-                    ],
-                    "envFrom": [
-                        {
-                            "secretRef": {
-                                "name": "sa-circular"
-                            }
-                        }
-                    ],
-                    "resources": {
-                        "requests": {
-                            "ephemeral-storage": "10240Mi"
-                        },
-                        "limits": {
-                            "ephemeral-storage": "10240Mi"
-                        }
-                    }
+                    ]
                 }
             }
         ]
