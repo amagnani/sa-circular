@@ -4,10 +4,10 @@
     "metadata": {
         "name": "sap-cv-package-tutorial-obj-detection-train",
         "labels": {
-            "metaflow/user": "i550349",
-            "metaflow/metaflow_version": "2.8.0",
             "metaflow/python_version": "3.9.6",
+            "metaflow/metaflow_version": "2.8.0",
             "metaflow/runtime": "dev",
+            "metaflow/user": "i550349",
             "scenarios.ai.sap.com/id": "sap-cv-package-tutorial",
             "ai.sap.com/version": "0.0.1",
             "app": "metaflow",
@@ -148,10 +148,10 @@
                 "name": "start",
                 "metadata": {
                     "labels": {
-                        "metaflow/user": "i550349",
-                        "metaflow/metaflow_version": "2.8.0",
                         "metaflow/python_version": "3.9.6",
+                        "metaflow/metaflow_version": "2.8.0",
                         "metaflow/runtime": "dev",
+                        "metaflow/user": "i550349",
                         "app": "metaflow",
                         "metaflow/workflow_template": "sap-cv-package-tutorial-obj-detection-train",
                         "app.kubernetes.io/created-by": "I550349",
@@ -255,10 +255,10 @@
                 "name": "end",
                 "metadata": {
                     "labels": {
-                        "metaflow/user": "i550349",
-                        "metaflow/metaflow_version": "2.8.0",
                         "metaflow/python_version": "3.9.6",
+                        "metaflow/metaflow_version": "2.8.0",
                         "metaflow/runtime": "dev",
+                        "metaflow/user": "i550349",
                         "app": "metaflow",
                         "metaflow/workflow_template": "sap-cv-package-tutorial-obj-detection-train",
                         "app.kubernetes.io/created-by": "I550349",
