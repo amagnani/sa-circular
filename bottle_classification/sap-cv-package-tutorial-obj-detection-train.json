@@ -237,7 +237,7 @@
                     "envFrom": [
                         {
                             "secretRef": {
-                                "name": "sa-circular"
+                                "name": "amagnani"
                             }
                         }
                     ],
@@ -313,7 +313,7 @@
                     "envFrom": [
                         {
                             "secretRef": {
-                                "name": "sa-circular"
+                                "name": "amagnani"
                             }
                         }
                     ],
