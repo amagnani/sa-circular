@@ -1,0 +1,328 @@
+{
+    "apiVersion": "argoproj.io/v1alpha1",
+    "kind": "WorkflowTemplate",
+    "metadata": {
+        "name": "sap-cv-package-image-classification-train",
+        "labels": {
+            "metaflow/user": "i550349",
+            "metaflow/runtime": "dev",
+            "metaflow/metaflow_version": "2.8.0",
+            "metaflow/python_version": "3.9.6",
+            "scenarios.ai.sap.com/id": "sap-cv-image-classification",
+            "ai.sap.com/version": "0.0.1",
+            "app": "metaflow",
+            "metaflow/workflow_template": "sap-cv-package-image-classification-train",
+            "app.kubernetes.io/created-by": "I550349"
+        },
+        "annotations": {
+            "artifacts.ai.sap.com/datain.kind": "dataset",
+            "artifacts.ai.sap.com/trainedmodel.kind": "model",
+            "executables.ai.sap.com/description": "Pipeline to train an image classifier model.",
+            "executables.ai.sap.com/name": "image-classification-train",
+            "scenarios.ai.sap.com/name": "SAP CV Package Classification",
+            "metaflow/flow_name": "ImageClassificationTrain"
+        }
+    },
+    "spec": {
+        "entrypoint": "entry",
+        "workflowMetadata": {
+            "labels": {
+                "app": "metaflow",
+                "metaflow/workflow_template": "sap-cv-package-image-classification-train",
+                "app.kubernetes.io/created-by": "I550349"
+            },
+            "annotations": {
+                "metaflow/flow_name": "ImageClassificationTrain"
+            }
+        },
+        "arguments": {
+            "parameters": [
+                {
+                    "name": "additional_augmentations",
+                    "value": "true"
+                },
+                {
+                    "name": "base_learning_rate",
+                    "value": "0.00025"
+                },
+                {
+                    "name": "batch_size",
+                    "value": "40"
+                },
+                {
+                    "name": "class_names",
+                    "value": "\"\""
+                },
+                {
+                    "name": "evaluation_frequency",
+                    "value": "0.1"
+                },
+                {
+                    "name": "image_types",
+                    "value": "\"[\\\".jpg\\\", \\\".jpeg\\\", \\\".png\\\"]\""
+                },
+                {
+                    "name": "projection_layers",
+                    "value": "\"[]\""
+                },
+                {
+                    "name": "aicore_tracking",
+                    "value": "false"
+                },
+                {
+                    "name": "learning_rate_decay",
+                    "value": "true"
+                },
+                {
+                    "name": "model_name",
+                    "value": "\"ImageClassifier/FPN-Resnet50-no-pooling\""
+                },
+                {
+                    "name": "maximum_training_steps",
+                    "value": "3000"
+                },
+                {
+                    "name": "seed",
+                    "value": "1337"
+                },
+                {
+                    "name": "test",
+                    "value": "\"val.txt\""
+                },
+                {
+                    "name": "train",
+                    "value": "\"train.txt\""
+                },
+                {
+                    "name": "validation",
+                    "value": "\"val.txt\""
+                }
+            ]
+        },
+        "imagePullSecrets": [
+            {
+                "name": "amagnani"
+            }
+        ],
+        "parallelism": 100,
+        "templates": [
+            {
+                "name": "entry",
+                "dag": {
+                    "tasks": [
+                        {
+                            "name": "start",
+                            "template": "start",
+                            "arguments": {
+                                "parameters": [
+                                    {
+                                        "name": "input-paths",
+                                        "value": "{{workflow.name}}/_parameters/0"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "end",
+                            "template": "end",
+                            "dependencies": [
+                                "start"
+                            ],
+                            "arguments": {
+                                "parameters": [
+                                    {
+                                        "name": "input-paths",
+                                        "value": "{{workflow.name}}/start/{{tasks.start.outputs.parameters.task-id}}"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "start",
+                "metadata": {
+                    "labels": {
+                        "metaflow/user": "i550349",
+                        "metaflow/runtime": "dev",
+                        "metaflow/metaflow_version": "2.8.0",
+                        "metaflow/python_version": "3.9.6",
+                        "app": "metaflow",
+                        "metaflow/workflow_template": "sap-cv-package-image-classification-train",
+                        "app.kubernetes.io/created-by": "I550349",
+                        "metaflow/step_name": "start",
+                        "app.kubernetes.io/name": "metaflow-task",
+                        "app.kubernetes.io/part-of": "metaflow",
+                        "ai.sap.com/resourcePlan": "train.l"
+                    },
+                    "annotations": {
+                        "metaflow/flow_name": "ImageClassificationTrain",
+                        "metaflow/attempt": "0"
+                    }
+                },
+                "activeDeadlineSeconds": 432000,
+                "inputs": {
+                    "parameters": [
+                        {
+                            "name": "input-paths"
+                        }
+                    ],
+                    "artifacts": [
+                        {
+                            "name": "datain",
+                            "path": "/tmp/datain"
+                        }
+                    ]
+                },
+                "outputs": {
+                    "parameters": [
+                        {
+                            "name": "task-id",
+                            "value": "{{pod.name}}"
+                        }
+                    ],
+                    "artifacts": [
+                        {
+                            "name": "trainedmodel",
+                            "globalName": "trainedmodel",
+                            "path": "/tmp/model",
+                            "archive": {
+                                "none": {}
+                            }
+                        }
+                    ]
+                },
+                "volumes": [
+                    {
+                        "name": "dev-shm",
+                        "emptyDir": {
+                            "medium": "Memory"
+                        }
+                    }
+                ],
+                "container": {
+                    "image": "amagnani/sap-cv-package-image-classification-train:0.0.1",
+                    "volumeMounts": [
+                        {
+                            "mountPath": "/dev/shm",
+                            "name": "dev-shm"
+                        }
+                    ],
+                    "command": [
+                        "bash"
+                    ],
+                    "args": [
+                        "-c",
+                        "true && export PYTHONUNBUFFERED=x MF_PATHSPEC=ImageClassificationTrain/{{workflow.name}}/start/{{pod.name}} MF_DATASTORE=s3 MF_ATTEMPT=0 MFLOG_STDOUT=/tmp/mflog_stdout MFLOG_STDERR=/tmp/mflog_stderr && mflog(){ T=$(date -u -Ins|tr , .); echo \"[MFLOG|0|${T:0:26}Z|task|$T]$1\" >> $MFLOG_STDOUT; echo $1;  } && mflog 'Setting up task environment.' && python -m pip install requests -qqq && python -m pip install awscli boto3 -qqq && mkdir metaflow && cd metaflow && mkdir .metaflow && i=0; while [ $i -le 5 ]; do mflog 'Downloading code package...'; python -m awscli ${METAFLOW_S3_ENDPOINT_URL:+--endpoint-url=\"${METAFLOW_S3_ENDPOINT_URL}\"} s3 cp s3://sa-circular/data/ImageClassificationTrain/data/e8/e8f1d67b37767ad8d97ce88226ff2b278b1a121a job.tar >/dev/null && mflog 'Code package downloaded.' && break; sleep 10; i=$((i+1)); done && if [ $i -gt 5 ]; then mflog 'Failed to download code package from s3://sa-circular/data/ImageClassificationTrain/data/e8/e8f1d67b37767ad8d97ce88226ff2b278b1a121a after 6 tries. Exiting...' && exit 1; fi && TAR_OPTIONS='--warning=no-timestamp' tar xf job.tar && mflog 'Task is starting.' && (python image_classification_train.py --quiet --metadata=local --environment=local --datastore=s3 --event-logger=nullSidecarLogger --monitor=nullSidecarMonitor --no-pylint init --run-id {{workflow.name}} --task-id {{pod.name}}-params --additional_augmentations={{workflow.parameters.additional_augmentations}} --base_learning_rate={{workflow.parameters.base_learning_rate}} --batch_size={{workflow.parameters.batch_size}} --class_names={{workflow.parameters.class_names}} --evaluation_frequency={{workflow.parameters.evaluation_frequency}} --image_types={{workflow.parameters.image_types}} --projection_layers={{workflow.parameters.projection_layers}} --aicore_tracking={{workflow.parameters.aicore_tracking}} --learning_rate_decay={{workflow.parameters.learning_rate_decay}} --model_name={{workflow.parameters.model_name}} --maximum_training_steps={{workflow.parameters.maximum_training_steps}} --seed={{workflow.parameters.seed}} --test={{workflow.parameters.test}} --train={{workflow.parameters.train}} --validation={{workflow.parameters.validation}} && python image_classification_train.py --quiet --metadata=local --environment=local --datastore=s3 --datastore-root=s3://sa-circular/data --event-logger=nullSidecarLogger --monitor=nullSidecarMonitor --no-pylint --with=argo_internal step start --run-id {{workflow.name}} --task-id {{pod.name}} --retry-count 0 --max-user-code-retries 0 --input-paths {{workflow.name}}/_parameters/{{pod.name}}-params) 1>> >(python -m metaflow.mflog.tee task $MFLOG_STDOUT) 2>> >(python -m metaflow.mflog.tee task $MFLOG_STDERR >&2); c=$?; python -m metaflow.mflog.save_logs; exit $c"
+                    ],
+                    "env": [
+                        {
+                            "name": "METAFLOW_USER",
+                            "value": "I550349"
+                        },
+                        {
+                            "name": "METAFLOW_DATASTORE_SYSROOT_S3",
+                            "value": "s3://sa-circular/data"
+                        },
+                        {
+                            "name": "METAFLOW_DEFAULT_METADATA",
+                            "value": "local"
+                        }
+                    ],
+                    "envFrom": [
+                        {
+                            "secretRef": {
+                                "name": "default-object-store-secret"
+                            }
+                        }
+                    ],
+                    "resources": {
+                        "requests": {
+                            "ephemeral-storage": "10240Mi"
+                        },
+                        "limits": {
+                            "ephemeral-storage": "10240Mi"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "end",
+                "metadata": {
+                    "labels": {
+                        "metaflow/user": "i550349",
+                        "metaflow/runtime": "dev",
+                        "metaflow/metaflow_version": "2.8.0",
+                        "metaflow/python_version": "3.9.6",
+                        "app": "metaflow",
+                        "metaflow/workflow_template": "sap-cv-package-image-classification-train",
+                        "app.kubernetes.io/created-by": "I550349",
+                        "metaflow/step_name": "end",
+                        "app.kubernetes.io/name": "metaflow-task",
+                        "app.kubernetes.io/part-of": "metaflow"
+                    },
+                    "annotations": {
+                        "metaflow/flow_name": "ImageClassificationTrain",
+                        "metaflow/attempt": "0"
+                    }
+                },
+                "activeDeadlineSeconds": 432000,
+                "inputs": {
+                    "parameters": [
+                        {
+                            "name": "input-paths"
+                        }
+                    ]
+                },
+                "outputs": {
+                    "parameters": [
+                        {
+                            "name": "task-id",
+                            "value": "{{pod.name}}"
+                        }
+                    ]
+                },
+                "container": {
+                    "image": "amagnani/sap-cv-package-image-classification-train:0.0.1",
+                    "command": [
+                        "bash"
+                    ],
+                    "args": [
+                        "-c",
+                        "true && export PYTHONUNBUFFERED=x MF_PATHSPEC=ImageClassificationTrain/{{workflow.name}}/end/{{pod.name}} MF_DATASTORE=s3 MF_ATTEMPT=0 MFLOG_STDOUT=/tmp/mflog_stdout MFLOG_STDERR=/tmp/mflog_stderr && mflog(){ T=$(date -u -Ins|tr , .); echo \"[MFLOG|0|${T:0:26}Z|task|$T]$1\" >> $MFLOG_STDOUT; echo $1;  } && mflog 'Setting up task environment.' && python -m pip install requests -qqq && python -m pip install awscli boto3 -qqq && mkdir metaflow && cd metaflow && mkdir .metaflow && i=0; while [ $i -le 5 ]; do mflog 'Downloading code package...'; python -m awscli ${METAFLOW_S3_ENDPOINT_URL:+--endpoint-url=\"${METAFLOW_S3_ENDPOINT_URL}\"} s3 cp s3://sa-circular/data/ImageClassificationTrain/data/e8/e8f1d67b37767ad8d97ce88226ff2b278b1a121a job.tar >/dev/null && mflog 'Code package downloaded.' && break; sleep 10; i=$((i+1)); done && if [ $i -gt 5 ]; then mflog 'Failed to download code package from s3://sa-circular/data/ImageClassificationTrain/data/e8/e8f1d67b37767ad8d97ce88226ff2b278b1a121a after 6 tries. Exiting...' && exit 1; fi && TAR_OPTIONS='--warning=no-timestamp' tar xf job.tar && mflog 'Task is starting.' && (python image_classification_train.py --quiet --metadata=local --environment=local --datastore=s3 --datastore-root=s3://sa-circular/data --event-logger=nullSidecarLogger --monitor=nullSidecarMonitor --no-pylint --with=argo_internal step end --run-id {{workflow.name}} --task-id {{pod.name}} --retry-count 0 --max-user-code-retries 0 --input-paths {{inputs.parameters.input-paths}}) 1>> >(python -m metaflow.mflog.tee task $MFLOG_STDOUT) 2>> >(python -m metaflow.mflog.tee task $MFLOG_STDERR >&2); c=$?; python -m metaflow.mflog.save_logs; exit $c"
+                    ],
+                    "env": [
+                        {
+                            "name": "METAFLOW_USER",
+                            "value": "I550349"
+                        },
+                        {
+                            "name": "METAFLOW_DATASTORE_SYSROOT_S3",
+                            "value": "s3://sa-circular/data"
+                        },
+                        {
+                            "name": "METAFLOW_DEFAULT_METADATA",
+                            "value": "local"
+                        }
+                    ],
+                    "envFrom": [
+                        {
+                            "secretRef": {
+                                "name": "default-object-store-secret"
+                            }
+                        }
+                    ],
+                    "resources": {
+                        "requests": {
+                            "ephemeral-storage": "10240Mi"
+                        },
+                        "limits": {
+                            "ephemeral-storage": "10240Mi"
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
