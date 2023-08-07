@@ -1,0 +1,68 @@
+apiVersion: ai.sap.com/v1alpha1
+kind: ServingTemplate
+metadata:
+  annotations:
+    executables.ai.sap.com/description: YOUR_EXECUTABLE_DESCRIPTION
+    executables.ai.sap.com/name: sap-cv-package-classification-serve
+    scenarios.ai.sap.com/name: SAP CV Package Tutorial
+  labels:
+    ai.sap.com/version: 0.0.1
+    scenarios.ai.sap.com/id: sap-cv-package-classification
+  name: sap-cv-package-classification-serving
+spec:
+  inputs:
+    artifacts:
+    - name: trainedmodels
+    parameters:
+    - default: /mnt/models/[model]
+      name: models
+      type: string
+    - default: 'false'
+      name: cpuaffinity
+      type: string
+    - default: 1m
+      name: requesttimeout
+      type: string
+    - default: '3'
+      name: loglevel
+      type: string
+    - default: 'true'
+      name: gpu_deployment
+      type: string
+    - default: '-1.0'
+      name: iou_threshold
+      type: string
+  template:
+    apiVersion: serving.kserve.io/v1beta1
+    metadata:
+      labels: |
+        ai.sap.com/resourcePlan: "infer.s"
+    spec: |
+      predictor:
+        minReplicas: 1
+        containers:
+        - name: kserve-container
+          image: amagnani/sap-cv-package-model-serving:0.0.1
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 53547
+            protocol: TCP
+          env:
+          - name: STORAGE_URI
+            value: "{{inputs.artifacts.trainedmodels}}"
+          - name: MODELS
+            value: "{{inputs.parameters.models}}"
+          - name: IOU_THRESHOLD
+            value: "{{inputs.parameters.iou_threshold}}"
+          - name: LOG_LEVEL
+            value: "{{inputs.parameters.loglevel}}"
+          - name: REQUEST_TIMEOUT
+            value: "{{inputs.parameters.requesttimeout}}"
+          - name: ENABLE_CPU_AFFINITY
+            value: "{{inputs.parameters.cpuaffinity}}"
+          - name: NUM_CPU
+            value: "1"
+          - name: IS_GPU_DEPLOYMENT
+            value: "{{inputs.parameters.gpu_deployment}}"
+        imagePullSecrets:
+        - name: amagnani
