@@ -4,10 +4,10 @@ metadata:
   annotations:
     executables.ai.sap.com/description: YOUR_EXECUTABLE_DESCRIPTION
     executables.ai.sap.com/name: sap-cv-package-classification-serve
-    scenarios.ai.sap.com/name: SAP CV Package Tutorial
+    scenarios.ai.sap.com/name: SAP CV Package Classification
   labels:
     ai.sap.com/version: 0.0.1
-    scenarios.ai.sap.com/id: sap-cv-package-classification
+    scenarios.ai.sap.com/id: sap-cv-image-classification
   name: sap-cv-package-classification-serving
 spec:
   inputs:
